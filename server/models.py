@@ -1,5 +1,5 @@
 # server/models.py
-
+# Models are just a schema of how our database will actually look like/ We can as well call it our blue print
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
@@ -17,9 +17,14 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
 
-class Zookeeper(db.Model):
+class Zookeeper(db.Model, SerializerMixin):
+    # This will be a table in the database
     __tablename__ = 'zookeepers'
 
+    # don't forget that every tuple needs at least one comma!
+    serialize_rules = ('-animals.zookeeper',)
+
+    # This will be basically the columns or rather the containers of our data
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
     birthday = db.Column(db.Date)
@@ -27,9 +32,13 @@ class Zookeeper(db.Model):
     animals = db.relationship('Animal', back_populates='zookeeper')
 
 
-class Enclosure(db.Model):
+class Enclosure(db.Model, SerializerMixin):
+    # This will be a table in the database
     __tablename__ = 'enclosures'
 
+    serialize_rules = ('-animals.enclosure',)
+
+    # This will be basically the columns or rather the containers of our data
     id = db.Column(db.Integer, primary_key=True)
     environment = db.Column(db.String)
     open_to_visitors = db.Column(db.Boolean)
@@ -37,9 +46,13 @@ class Enclosure(db.Model):
     animals = db.relationship('Animal', back_populates='enclosure')
 
 
-class Animal(db.Model):
+class Animal(db.Model, SerializerMixin):
+    # This will be a table in the database
     __tablename__ = 'animals'
 
+    serialize_rules = ('-zookeeper.animals', '-enclosure.animals',)
+
+    # This will be basically the columns or rather the containers of our data
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
     species = db.Column(db.String)
